@@ -6,9 +6,9 @@
 # To Public License, Version 2, as published by Sam Hocevar. See
 # http://www.wtfpl.net/ for more details.
 
+import re
 import sys
 import json
-import pyglet
 
 import requests
 
@@ -19,7 +19,7 @@ class Playlist():
     def __init__(self):
         r = requests.get(
             API_BASE + '/me/activities/tracks/affiliated.json?oauth_token=' +
-            TOKEN + '&limit=10&filter=streamable'
+            TOKEN + '&limit=3&filter=streamable'
         )
         if not r.ok:
             r.raise_for_status()
@@ -34,6 +34,7 @@ class Playlist():
         for track in data['collection']:
             tracks.insert(0, {
                 'id': track['origin']['id'],
+                'title': track['origin']['title'],
                 'duration': track['origin']['duration'],
                 'genre': track['origin']['genre'],
                 'description': track['origin']['description'],
@@ -44,21 +45,40 @@ class Playlist():
         return tracks
 
     def play(self):
-        self.current_track = self.tracks[0]
-        stream_url = self.current_track['stream_url']
-        r = requests.get(stream_url + '?oauth_token=' +
-            TOKEN, stream=True)
-        for line in r.iter_lines():
-            if line:
-                print line
         #print json.dumps(self.tracks, indent=2, sort_keys=True)
+        if len(self.tracks) > 2:
+            self.current_track = self.tracks.pop(0)
+        else:
+            next_r = self.tracks[-1]
+            self.current_track = self.tracks.pop(0)
+            url = re.split('affiliated', next_r['next_href'])
+            request = (
+                    API_BASE +
+                    '/me/activities/tracks/affiliated.json?oauth_token=' +
+                    TOKEN + '&' + url[1][1:]
+                   )
+            r = requests.get(request)
+            data = r.json()
+            self.tracks = self.fetch_tracks(data)
+
+            #self.current_track = self.tracks.pop(0)
+        #stream_url = self.current_track['stream_url']
+        #r = requests.get(stream_url + '?oauth_token=' +
+            #TOKEN, stream=True)
+        #for line in r.iter_lines():
+            #if line:
+                #print line
+
+    def next(self):
+        self.current_track = None
+        self.play()
 
     def stop(self):
         self.current_track = None
 
     def get_current_track(self):
         if self.current_track is not None:
-            return self.current_track
+            print self.current_track['title']
         else:
             print ("Nothing is playing right now. " +
                   "Go on and start playing some music!")
@@ -83,7 +103,8 @@ class Controller():
             'help': self.help_,
             'exit': self.exit_,
             'play': self.playlist.play,
-            'current': self.playlist.get_current_track
+            'current': self.playlist.get_current_track,
+            'next': self.playlist.next
         }
         commands[command]()
 
