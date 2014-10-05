@@ -8,6 +8,7 @@
 
 import sys
 import json
+import pyglet
 
 import requests
 
@@ -23,13 +24,15 @@ class Playlist():
         if not r.ok:
             r.raise_for_status()
         self.data = r.json()
+        self.tracks = self.fetch_tracks(self.data)
+        self.current_track = None
 
     def fetch_tracks(self, data):
         tracks = []
         tracks.append({'next_href': data['next_href']})
 
         for track in data['collection']:
-            tracks.append({
+            tracks.insert(0, {
                 'id': track['origin']['id'],
                 'duration': track['origin']['duration'],
                 'genre': track['origin']['genre'],
@@ -41,8 +44,24 @@ class Playlist():
         return tracks
 
     def play(self):
-        self.tracks = self.fetch_tracks(self.data)
-        print json.dumps(self.tracks[0], indent=2, sort_keys=True)
+        self.current_track = self.tracks[0]
+        stream_url = self.current_track['stream_url']
+        r = requests.get(stream_url + '?oauth_token=' +
+            TOKEN, stream=True)
+        for line in r.iter_lines():
+            if line:
+                print line
+        #print json.dumps(self.tracks, indent=2, sort_keys=True)
+
+    def stop(self):
+        self.current_track = None
+
+    def get_current_track(self):
+        if self.current_track is not None:
+            return self.current_track
+        else:
+            print ("Nothing is playing right now. " +
+                  "Go on and start playing some music!")
 
 class Controller():
 
@@ -63,7 +82,8 @@ class Controller():
         commands = {
             'help': self.help_,
             'exit': self.exit_,
-            'play': self.playlist.play
+            'play': self.playlist.play,
+            'current': self.playlist.get_current_track
         }
         commands[command]()
 
