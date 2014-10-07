@@ -6,10 +6,12 @@
 # To Public License, Version 2, as published by Sam Hocevar. See
 # http://www.wtfpl.net/ for more details.
 
+import os
 import re
 import sys
 import json
 
+from blessings import Terminal
 import requests
 
 TOKEN = '1-97489-6257437-80f8de20636a16b3'
@@ -61,19 +63,26 @@ class Playlist():
             data = r.json()
             self.tracks = self.fetch_tracks(data)
 
-            #self.current_track = self.tracks.pop(0)
-        #stream_url = self.current_track['stream_url']
-        #r = requests.get(stream_url + '?oauth_token=' +
-            #TOKEN, stream=True)
-        #for line in r.iter_lines():
-            #if line:
-                #print line
+        '''stream_url = self.current_track['stream_url']
+        r = requests.get(stream_url + '?oauth_token=' +
+            TOKEN, stream=True)
+        for line in r.iter_lines():
+            if line:
+                print line'''
 
     def next(self):
         self.current_track = None
         self.play()
 
+    def like(self):
+        return 0
+
     def stop(self):
+        with open(
+                  os.path.join("/Users/Nic/Downloads/",
+                               ".last_listened.txt"), "w"
+                 ) as f:
+            f.write(str(self.current_track))
         self.current_track = None
 
     def get_current_track(self):
@@ -89,30 +98,48 @@ class Controller():
         self.playlist = Playlist()
 
     def help_(self):
-        print 'This is the help page'
+        help_page = '''
+        HELP PAGE:
 
-    def exit_(self):
-        sys.exit(1)
+        COMMANDS:
+        play:       Play the newest tracks
+        next:       Play the next track
+        current:    Show the current track playing
+        like:       Like the current track playing
+        stop:       Stop playing music
+        exit:       Close the program
+        '''
+        print help_page
 
     def listen_for_command(self):
         io = raw_input()
-        self.parse_command(io)
+        if io == 'exit':
+            sys.exit(1)
+        else:
+            try:
+                self.parse_command(io)
+            except:
+                print ('Please enter a valid command. ' +
+                       'For further information type help')
+
 
     def parse_command(self, command):
         commands = {
             'help': self.help_,
-            'exit': self.exit_,
             'play': self.playlist.play,
             'current': self.playlist.get_current_track,
-            'next': self.playlist.next
+            'next': self.playlist.next,
+            'like': self.playlist.like,
+            'stop': self.playlist.stop
         }
         commands[command]()
 
 def main():
+    term = Terminal()
     controller = Controller()
     print 'Please enter a command. For a list of available commands type help'
     while True:
-        print '>>',
+        print term.bright_red('>>'),
         controller.listen_for_command()
 
 if __name__ == "__main__":
