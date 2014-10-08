@@ -6,63 +6,49 @@
 # To Public License, Version 2, as published by Sam Hocevar. See
 # http://www.wtfpl.net/ for more details.
 
-import sys
-
-from blessings import Terminal
+import flask
+import soundcloud
 
 import soundcloudr.playlist
+from soundcloudr.models import db
+#from soundcloudr.models import PlayPosition
 
-class Controller():
+app = flask.Flask(__name__, instance_relative_config=True)
+app.config.from_pyfile("config.py")
 
-    def __init__(self):
-        self.playlist = soundcloudr.playlist.Playlist()
+db.create_all()
 
-    def help_(self):
-        help_page = '''
-        HELP PAGE:
+#PlayPosition('Nic', 1234)
 
-        COMMANDS:
-        play:       Play the newest tracks
-        next:       Play the next track
-        current:    Show the current track playing
-        show:       Show available tracks
-        like:       Like the current track playing
-        stop:       Stop playing music
-        exit:       Close the program
-        '''
-        print help_page
+@app.route("/")
+def home():
+    if 'access_token' in flask.session:
+        return flask.render_template('home_loggedin.html')
+    return flask.render_template('home.html')
 
-    def listen_for_command(self):
-        io = raw_input()
-        if io == 'exit':
-            sys.exit(1)
-        else:
-            try:
-                self.parse_command(io)
-            except:
-                print ('Please enter a valid command. ' +
-                       'For further information type help')
+@app.route("/login")
+def login():
+    return flask.redirect(flask.g.client.authorize_url())
 
+@app.route('/authorize')
+def authorize():
+    access_token = flask.g.client.exchange_token(flask.request.args.get('code'))
+    flask.session['access_token'] = access_token.access_token
+    return flask.redirect(flask.url_for('home'))
 
-    def parse_command(self, command):
-        commands = {
-            'help': self.help_,
-            'play': self.playlist.play,
-            'current': self.playlist.get_current_track,
-            'next': self.playlist.next,
-            'like': self.playlist.like,
-            'stop': self.playlist.stop,
-            'show': self.playlist.show
-        }
-        commands[command]()
+@app.route('/play')
+def play():
+    playlist = soundcloudr.playlist.Playlist(flask.g.client)
+    next_track = playlist.tracks.pop(0)['permalink_url']
+    print next_track
+    embed_info = flask.g.client.get('/oembed', url=next_track)
+    return flask.render_template('home.html', player = embed_info.html)
 
-def main():
-    term = Terminal()
-    controller = Controller()
-    print 'Please enter a command. For a list of available commands type help'
-    while True:
-        print term.bright_red('>>'),
-        controller.listen_for_command()
-
-if __name__ == "__main__":
-    main()
+@app.before_request
+def generate_client():
+    token = flask.session['access_token']
+    client = soundcloud.Client(client_id = app.config['CLIENT_ID'],
+                           client_secret = app.config['CLIENT_SECRET'],
+                           access_token = token,
+                           redirect_uri = 'http://localhost:5000/authorize')
+    flask.g.client = client

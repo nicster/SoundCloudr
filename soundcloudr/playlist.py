@@ -9,34 +9,28 @@
 import os
 import re
 import json
+import random
 
 import requests
+import webbrowser
 
-TOKEN = '1-97489-6257437-80f8de20636a16b3'
+from config import TOKEN
+
 API_BASE = 'https://api.soundcloud.com'
 HOME =  os.getenv('HOME')
 
-class Playlist():
-    def __init__(self):
-        r = requests.get(
-            API_BASE + '/me/activities/tracks/affiliated.json?oauth_token=' +
-            TOKEN + '&filter=streamable'
-        )
-        if not r.ok:
-            r.raise_for_status()
-        self.data = r.json()
-        json_data = open(HOME + "/Downloads/.last_listened.json")
-        last = json.load(json_data)['id']
-        self.tracks = self.fetch_tracks(self.data, last)
+class Playlist(object):
+    def __init__(self, client):
+        data = client.get(
+                    '/me/activities/tracks/affiliated'
+                )
+        self.tracks = self.fetch_tracks(data, [])
         self.current_track = None
 
-    def fetch_tracks(self, data, last, flag = False, tracks = []):
-        tracks.append({'next_href': data['next_href']})
+    def fetch_tracks(self, data, tracks):
+        tracks.append({'next_href': data.next_href})
 
-        for track in data['collection']:
-            if track['origin']['id'] == last:
-                flag == True
-                continue
+        for track in data.collection:
             tracks.insert(0, {
                 'id': track['origin']['id'],
                 'title': track['origin']['title'],
@@ -45,31 +39,18 @@ class Playlist():
                 'description': track['origin']['description'],
                 'downloadable': track['origin']['downloadable'],
                 'stream_url': track['origin']['stream_url'],
-                'permalink': track['origin']['permalink']
+                'permalink_url': track['origin']['permalink_url']
             })
-        if flag == False:
-            next_r = tracks.pop()
-            url = re.split('affiliated', next_r['next_href'])
-            request = (
-                    API_BASE +
-                    '/me/activities/tracks/affiliated.json?oauth_token=' +
-                    TOKEN + '&' + url[1][1:]
-                   )
-            data = requests.get(request).json()
-            self.fetch_tracks(data, last, tracks)
-
-
-
         return tracks
 
     def play(self):
-        #print json.dumps(self.tracks, indent=2, sort_keys=True)
-        while len(self.tracks)>0:
-            self.current_track = self.tracks.pop(0)
-        print ('You played all your unplayed tracks. If you want you can ' +
+        print len(self.tracks)
+        #print json.dumps(self.tracks , indent=2, sort_keys=True)
+        self.current_track = self.tracks.pop(0)
+        '''print ('You played all your unplayed tracks. If you want you can ' +
                "play your liked tracks with the 'play liked' command")
 
-        '''stream_url = self.current_track['stream_url']
+        stream_url = self.current_track['stream_url']
         r = requests.get(stream_url + '?oauth_token=' +
             TOKEN, stream=True)
         for line in r.iter_lines():
@@ -84,8 +65,37 @@ class Playlist():
         for track in self.tracks:
             print track['title']
 
-    def like(self):
-        return 0
+    def open(self):
+        webbrowser.open(self.current_track['permalink_url'])
+
+    def play_liked(self):
+        request = (
+            API_BASE + '/me.json?oauth_token=' + TOKEN
+        )
+        data = self.api_request(request)
+        number_of_likes = data['public_favorites_count']
+        request = (
+            API_BASE + '/me/favorites.json?oauth_token=' + TOKEN +
+            '&limit=' + str(number_of_likes)
+        )
+        data = self.api_request(request)
+        print json.dumps(data, indent=2, sort_keys=True)
+        tracks = []
+        for track in data:
+            tracks.insert(0, {
+                'id': track['id'],
+                'title': track['title'],
+                'duration': track['duration'],
+                'genre': track['genre'],
+                'description': track['description'],
+                'downloadable': track['downloadable'],
+                'permalink': track['permalink'],
+                #'stream_url': track['stream_url']
+            })
+        print json.dumps(tracks, indent=2, sort_keys=True)
+        next_track = random.randrange(1, number_of_likes)
+
+
 
     def stop(self):
         with open(

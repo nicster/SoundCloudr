@@ -18,9 +18,4 @@ setup(
     license = "WTFPL",
     zip_safe = True,
     install_requires = ("soundcloud"),
-    entry_points = {
-        'console_scripts': (
-            "soundcloudr = soundcloudr:main",
-        )
-    }
 )
