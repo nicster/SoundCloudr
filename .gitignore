@@ -54,4 +54,4 @@ docs/_build/
 target/
 
 # Files
-soundcloudr/config.py
+instance/config.py
