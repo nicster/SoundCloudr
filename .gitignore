@@ -54,4 +54,4 @@ docs/_build/
 target/
 
 # Files
-instance/config.py
+instance/
