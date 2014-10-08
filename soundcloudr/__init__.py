@@ -10,15 +10,15 @@ import flask
 import soundcloud
 
 import soundcloudr.playlist
-from soundcloudr.models import db
-#from soundcloudr.models import PlayPosition
 
 app = flask.Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py")
 
+from soundcloudr.models import db
 db.create_all()
 
-#PlayPosition('Nic', 1234)
+from soundcloudr.models import PlayPosition
+PlayPosition('Nic', 1234)
 
 @app.route("/")
 def home():

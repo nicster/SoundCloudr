@@ -7,14 +7,10 @@
 # http://www.wtfpl.net/ for more details.
 
 import os
-import re
 import json
 import random
 
-import requests
 import webbrowser
-
-from config import TOKEN
 
 API_BASE = 'https://api.soundcloud.com'
 HOME =  os.getenv('HOME')
