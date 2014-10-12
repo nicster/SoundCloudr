@@ -46,8 +46,8 @@ $.getJSON('/tracks', function(tracks){
         }
 
         function last() {
-            position -= 1;
-            if (position >= 0) {
+            if (position-1 >= 0) {
+                position -= 1;
                 widget.load('http://api.soundcloud.com/tracks/' + tracks[position], {
                     auto_play: true,
                     buying: false
