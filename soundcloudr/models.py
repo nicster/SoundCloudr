@@ -15,7 +15,7 @@ class PlayPosition(db.Model):
     user = db.Column(db.String(255) , primary_key=True)
     track_id = db.Column(db.Integer)
 
-    def __init__(self, user, track_id):
+    def __init__(self, user, track_id=0):
         self.user = user
         self.track = track_id
 

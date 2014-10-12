@@ -7,27 +7,26 @@
 # http://www.wtfpl.net/ for more details.
 
 import os
-import json
-import random
-
-import webbrowser
+import urlparse
 
 API_BASE = 'https://api.soundcloud.com'
 HOME =  os.getenv('HOME')
 
 class Playlist(object):
-    def __init__(self, client):
-        data = client.get(
-                    '/me/activities/tracks/affiliated'
-                )
-        self.tracks = self.fetch_tracks(data, [])
-        self.current_track = None
+    def __init__(self, client, last_track):
+        self.client = client
+        self.last_track = last_track
+        self.tracks = reversed(self.fetch_tracks())
 
-    def fetch_tracks(self, data, tracks):
-        tracks.append({'next_href': data.next_href})
+    def fetch_tracks(self, tracks=None, cursor=None):
+        if tracks is None:
+            tracks = []
+        data = self.client.get(
+            '/me/activities/tracks/affiliated', cursor=cursor
+        )
 
         for track in data.collection:
-            tracks.insert(0, {
+            tracks.append({
                 'id': track['origin']['id'],
                 'title': track['origin']['title'],
                 'duration': track['origin']['duration'],
@@ -37,73 +36,15 @@ class Playlist(object):
                 'stream_url': track['origin']['stream_url'],
                 'permalink_url': track['origin']['permalink_url']
             })
+            if track['origin']['id'] == self.last_track:
+                break
+        else:
+            self.fetch_tracks(tracks, self.extract_cursor(data.next_href))
         return tracks
 
-    def play(self):
-        print len(self.tracks)
-        #print json.dumps(self.tracks , indent=2, sort_keys=True)
-        self.current_track = self.tracks.pop(0)
-        '''print ('You played all your unplayed tracks. If you want you can ' +
-               "play your liked tracks with the 'play liked' command")
+    def extract_cursor(self, url):
+        query = urlparse.urlparse(url).query
+        params = urlparse.parse_qs(query)
+        cursor = params['cursor'][0]
+        return cursor
 
-        stream_url = self.current_track['stream_url']
-        r = requests.get(stream_url + '?oauth_token=' +
-            TOKEN, stream=True)
-        for line in r.iter_lines():
-            if line:
-                print line'''
-
-    def next(self):
-        self.current_track = None
-        self.play()
-
-    def show(self):
-        for track in self.tracks:
-            print track['title']
-
-    def open(self):
-        webbrowser.open(self.current_track['permalink_url'])
-
-    def play_liked(self):
-        request = (
-            API_BASE + '/me.json?oauth_token=' + TOKEN
-        )
-        data = self.api_request(request)
-        number_of_likes = data['public_favorites_count']
-        request = (
-            API_BASE + '/me/favorites.json?oauth_token=' + TOKEN +
-            '&limit=' + str(number_of_likes)
-        )
-        data = self.api_request(request)
-        print json.dumps(data, indent=2, sort_keys=True)
-        tracks = []
-        for track in data:
-            tracks.insert(0, {
-                'id': track['id'],
-                'title': track['title'],
-                'duration': track['duration'],
-                'genre': track['genre'],
-                'description': track['description'],
-                'downloadable': track['downloadable'],
-                'permalink': track['permalink'],
-                #'stream_url': track['stream_url']
-            })
-        print json.dumps(tracks, indent=2, sort_keys=True)
-        next_track = random.randrange(1, number_of_likes)
-
-
-
-    def stop(self):
-        with open(
-                  os.path.join(HOME + "/Downloads/",
-                               ".last_listened.json"), "w"
-                 ) as f:
-            json.dump(self.current_track, f)
-        self.current_track = None
-
-    def get_current_track(self):
-        if self.current_track is not None:
-            print self.current_track['title']
-        else:
-            print ("Nothing is playing right now. " +
-                  "Go on and start playing some music!")
