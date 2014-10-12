@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name = "Soundcloudr",
-    version = "1.0",
+    version = "1.0.1",
     description = "Listen to your Soundcloud feed inside your terminal",
     url = '',
     author = "Nicolas Spycher",
