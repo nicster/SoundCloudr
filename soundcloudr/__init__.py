@@ -31,6 +31,12 @@ def home():
 def login():
     return flask.redirect(flask.g.client.authorize_url())
 
+@app.route("/logout")
+def logout():
+    flask.session.clear()
+    return flask.redirect(flask.url_for('home'))
+
+
 @app.route('/authorize')
 def authorize():
     access_token = flask.g.client.exchange_token(flask.request.args.get('code'))
@@ -65,6 +71,10 @@ def playposition():
     user.track_id = play_position
     db.session.commit()
     return 'OK'
+
+@app.route('/done')
+def done():
+    return 'Done'
 
 @app.before_request
 def generate_client():

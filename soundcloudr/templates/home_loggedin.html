@@ -1,19 +1,12 @@
-<!doctype html>
-
-<html>
-<head>
-    <title>SoundCloudr</title>
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <iframe id="sc-widget" width="100%" scrolling="no" frameborder="0"></iframe>
-
-    You can start listening to music now
-    <a href='/play'>play</a>
+{% extends "layout.html" %}
+{% block body %}
+    <div id="player">
+        <iframe id="sc-widget" width="100%" scrolling="no" frameborder="0"></iframe>
+        <div id="next">next</div>
+    </div>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="https://w.soundcloud.com/player/api.js"></script>
     <script src="/static/js/controller.js"></script>
-</body>
-</html>
+{% endblock %}
 

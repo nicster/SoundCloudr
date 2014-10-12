@@ -1,0 +1,17 @@
+#login {
+    font-size: 80pt;
+    font-family: Arial;
+    text-decoration: none;
+    background-color: #E63225;
+    padding: 3 10 10 10;
+    color: white;
+    border-radius: 5px;
+    position: absolute;
+    left: 40%;
+    margin: 200 auto;
+}
+
+#login:hover {
+    background-color: white;
+    color: #E63225;
+}
