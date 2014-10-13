@@ -57,7 +57,7 @@ header {
     padding-left: 10px;
 }
 
-#logout:hover {
+#logout:hover, #logo:hover {
     background-color: inherit;
     color: #E63225;
     cursor: pointer;

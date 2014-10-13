@@ -1,20 +1,27 @@
 $.getJSON('/tracks', function(tracks){
-    $('#last1').show(500);
-    $('#next1').show(500);
-    $('#hdashboard').show(500);
     $(function() {
 
-        var widgetIframe = document.getElementById('sc-widget1');
-        widgetIframe.src = 'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/' + tracks[0];
-        var widget1       = SC.Widget(widgetIframe),
-            likeposition = 0,
-            position     = 0;
+        $('#hdashboard').show(500);
 
-        widget1.bind(SC.Widget.Events.PLAY_PROGRESS, function(play_progress) {
-            if (play_progress.relativePosition > 0.999) {
-                skip();
-            }
-        });
+        if (tracks.length !== 0) {
+            $('#last1').show(500);
+            $('#next1').show(500);
+            var widgetIframe = document.getElementById('sc-widget1');
+            widgetIframe.src = 'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/' + tracks[0];
+            var widget1      = SC.Widget(widgetIframe),
+            position         = 0;
+
+            widget1.bind(SC.Widget.Events.PLAY_PROGRESS, function(play_progress) {
+                if (play_progress.relativePosition > 0.999) {
+                    skip();
+                }
+            });
+        }
+        else {
+            $('#sc-widget1').hide();
+            $('#error1').css({'margin-left': '0px', 'color':'#282828'});
+            $('#error1').append('No tracks to play. Check back later or listen to some likes!');
+        }
 
         $('#next1').click(function() {
             skip();
@@ -69,7 +76,8 @@ $.getJSON('/tracks', function(tracks){
             $('#hlikes').show(500);
             var widgetIframe = document.getElementById('sc-widget2');
             shuffle(likes);
-            widgetIframe.src = 'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/' + likes[0];
+            var likeposition     = 0;
+            widgetIframe.src = 'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/' + likes[likeposition];
             var widget2      = SC.Widget(widgetIframe);
 
             widget2.bind(SC.Widget.Events.PLAY_PROGRESS, function(play_progress) {

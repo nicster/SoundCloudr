@@ -70,7 +70,6 @@ def likes():
         likes = soundcloudr.playlist.Playlist(
             flask.g.client, None, number_of_likes
         ).likes
-        print len(likes)
         rv = flask.make_response(
             json.dumps([track['id'] for track in likes
             if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
