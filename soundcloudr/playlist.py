@@ -6,14 +6,10 @@
 # To Public License, Version 2, as published by Sam Hocevar. See
 # http://www.wtfpl.net/ for more details.
 
-import os
 import urlparse
 
 import gevent
 import gevent.pool
-
-API_BASE = 'https://api.soundcloud.com'
-HOME =  os.getenv('HOME')
 
 class Playlist(object):
     def __init__(self, client, last_track=None, number_of_likes=None):
