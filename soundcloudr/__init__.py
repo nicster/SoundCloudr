@@ -61,6 +61,23 @@ def tracks():
         rv.headers['content-type'] = 'application/json'
         return rv
 
+@app.route('/likes')
+def likes():
+    if 'access_token' not in flask.session:
+        return flask.abort(401)
+    else:
+        number_of_likes = flask.g.client.get('/me').public_favorites_count
+        likes = soundcloudr.playlist.Playlist(
+            flask.g.client, None, number_of_likes
+        ).likes
+        print len(likes)
+        rv = flask.make_response(
+            json.dumps([track['id'] for track in likes
+            if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
+        )
+        rv.headers['content-type'] = 'application/json'
+        return rv
+
 @app.route('/playposition', methods=['POST'])
 def playposition():
     play_position = flask.request.form['last_played']
@@ -71,10 +88,6 @@ def playposition():
     user.track_id = play_position
     db.session.commit()
     return 'OK'
-
-@app.route('/done')
-def done():
-    return 'Done'
 
 @app.before_request
 def generate_client():
