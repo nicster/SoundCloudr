@@ -11,7 +11,7 @@ from setuptools import setup
 setup(
     name = "Soundcloudr",
     version = "1.1",
-    description = "Listen to your Soundcloud feed inside your terminal",
+    description = "Listen to your Soundcloud feed and to your likes",
     url = '',
     author = "Nicolas Spycher",
     author_email = "nic.spycher@gmail.com",

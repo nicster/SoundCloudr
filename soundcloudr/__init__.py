@@ -95,10 +95,10 @@ def generate_client():
         client = soundcloud.Client(client_id = app.config['CLIENT_ID'],
                                client_secret = app.config['CLIENT_SECRET'],
                                access_token = token,
-                               redirect_uri = 'http://localhost:5000/authorize')
+                               redirect_uri = flask.url_for('authorize'), external=True)
         flask.g.client = client
     else:
         client = soundcloud.Client(client_id = app.config['CLIENT_ID'],
                                client_secret = app.config['CLIENT_SECRET'],
-                               redirect_uri = 'http://localhost:5000/authorize')
+                               redirect_uri = flask.url_for('authorize', external= True))
         flask.g.client = client
