@@ -15,8 +15,7 @@ class Playlist(object):
     def __init__(self, client, last_track=None, number_of_likes=None):
         self.client = client
         self.last_track = last_track
-        if last_track is not None:
-            self.tracks = reversed(self.fetch_tracks())
+        self.tracks = reversed(self.fetch_tracks())
         if number_of_likes is not None:
             self.likes = self.fetch_likes(number_of_likes)
 
