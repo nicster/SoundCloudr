@@ -54,20 +54,18 @@ def tracks():
         if not user:
             user = PlayPosition(flask.session['username'])
             db.session.add(user)
-            user.track_id = None
-            l_track = user.track_id
+            l_track = None
+            user.track_id = l_track
             db.session.commit()
         else:
-            l_track = PlayPosition.query.filter_by(
-                user=flask.session['username']
-            ).first().track_id
-        tracks = soundcloudr.playlist.Playlist(flask.g.client, l_track).tracks
-        rv = flask.make_response(
-            json.dumps([track['id'] for track in tracks
-            if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
-        )
-        rv.headers['content-type'] = 'application/json'
-        return rv
+            l_track = user.first().track_id
+    tracks = soundcloudr.playlist.Playlist(flask.g.client, l_track).tracks
+    rv = flask.make_response(
+        json.dumps([track['id'] for track in tracks
+        if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
+    )
+    rv.headers['content-type'] = 'application/json'
+    return rv
 
 @app.route('/likes')
 def likes():
