@@ -58,14 +58,15 @@ def tracks():
             user.track_id = l_track
             db.session.commit()
         else:
-            l_track = user.first().track_id
-    tracks = soundcloudr.playlist.Playlist(flask.g.client, l_track).tracks
-    rv = flask.make_response(
-        json.dumps([track['id'] for track in tracks
-        if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
-    )
-    rv.headers['content-type'] = 'application/json'
-    return rv
+            l_track = user.track_id
+
+        tracks = soundcloudr.playlist.Playlist(flask.g.client, l_track).tracks
+        rv = flask.make_response(
+            json.dumps([track['id'] for track in tracks
+            if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
+        )
+        rv.headers['content-type'] = 'application/json'
+        return rv
 
 @app.route('/likes')
 def likes():
