@@ -28,7 +28,7 @@ class Playlist(object):
         )
 
         for track in data.collection:
-            if track['origin']['id'] == self.last_track or len(tracks) >= 200:
+            if track['origin']['id'] == self.last_track or len(tracks) >= 100:
                 break
             tracks.append({
                 'id': track['origin']['id'],

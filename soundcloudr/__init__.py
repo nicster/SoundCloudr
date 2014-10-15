@@ -50,9 +50,17 @@ def tracks():
     if 'access_token' not in flask.session:
         return flask.abort(401)
     else:
-        l_track = PlayPosition.query.filter_by(
-            user=flask.session['username']
-        ).first().track_id
+        user = PlayPosition.query.filter_by(user=flask.session['username']).first()
+        if not user:
+            user = PlayPosition(flask.session['username'])
+            db.session.add(user)
+            user.track_id = None
+            l_track = user.track_id
+            db.session.commit()
+        else:
+            l_track = PlayPosition.query.filter_by(
+                user=flask.session['username']
+            ).first().track_id
         tracks = soundcloudr.playlist.Playlist(flask.g.client, l_track).tracks
         rv = flask.make_response(
             json.dumps([track['id'] for track in tracks
@@ -100,5 +108,5 @@ def generate_client():
     else:
         client = soundcloud.Client(client_id = app.config['CLIENT_ID'],
                                client_secret = app.config['CLIENT_SECRET'],
-                               redirect_uri = flask.url_for('authorize', _external= True))
+                               redirect_uri = flask.url_for('authorize', _external=True))
         flask.g.client = client
