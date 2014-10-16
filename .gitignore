@@ -55,3 +55,4 @@ target/
 
 # Files
 instance/
+*.psd

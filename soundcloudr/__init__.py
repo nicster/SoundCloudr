@@ -50,13 +50,14 @@ def tracks():
     if 'access_token' not in flask.session:
         return flask.abort(401)
     else:
-        user = PlayPosition.query.filter_by(user=flask.session['username']).first()
+        user = PlayPosition.query.filter_by(
+            user=flask.session['username']
+        ).first()
         if not user:
             user = PlayPosition(flask.session['username'])
             db.session.add(user)
-            l_track = None
-            user.track_id = l_track
             db.session.commit()
+            l_track = None
         else:
             l_track = user.track_id
 
@@ -102,10 +103,12 @@ def generate_client():
         client = soundcloud.Client(client_id = app.config['CLIENT_ID'],
                                client_secret = app.config['CLIENT_SECRET'],
                                access_token = token,
-                               redirect_uri = flask.url_for('authorize', _external=True))
+                               redirect_uri = flask.url_for(
+                                                'authorize', _external=True))
         flask.g.client = client
     else:
         client = soundcloud.Client(client_id = app.config['CLIENT_ID'],
                                client_secret = app.config['CLIENT_SECRET'],
-                               redirect_uri = flask.url_for('authorize', _external=True))
+                               redirect_uri = flask.url_for(
+                                                'authorize', _external=True))
         flask.g.client = client
