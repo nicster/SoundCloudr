@@ -28,6 +28,22 @@ header {
     height: 50px;
 }
 
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+h1 {
+    color: #E63225;
+}
+
+.fa-spin {
+    -webkit-transform-origin: 48.5% 49.7%;
+    -moz-transform-origin: 48.5% 48.5%;
+    -ms-transform-origin: 48.5% 48.5%;
+    -o-transform-origin: 48.5% 48.5%;
+    /*transform-origin: 47.5% 40%;*/
+}
 
 
 #header_body {
@@ -36,6 +52,7 @@ header {
     margin: 0 auto 0;
     display: block;
     font-size: 35px;
+    text-align: right;
 }
 
 #logo {
@@ -55,6 +72,7 @@ header {
     background-color: #E63225;
     padding-right: 10px;
     padding-left: 10px;
+    margin-left: 15px;
 }
 
 #logout:hover, #logo:hover {
@@ -69,19 +87,20 @@ header {
     margin: 0 auto;
     background-color: #FFFFFF;
     display: block;
+    padding-top: 1px;
 }
 
-.player {
+.player, #settings {
     margin-left: 25px;
     margin-bottom: 15px;
     margin-right: 25px;
-    padding-top: 35px;
+    padding-top: 20px;
     position: relative;
     overflow: hidden;
 }
 
 .player h1 {
-    color: red;
+    color: #E63225;
     display: none;
 }
 
@@ -94,7 +113,13 @@ header {
     color: white;
     border-radius: 5px;
     margin-top: 10px;
+}
+
+.float_left {
     float: left;
+}
+
+.hidden {
     display: none;
 }
 
@@ -125,4 +150,19 @@ header {
     color: #E63225;
     padding-top: 200px;
     text-align: center;
+}
+
+#settings-cog {
+    color: #999;
+}
+
+#tracklength {
+    width: 30px;
+    font-size: 16px;
+    margin-left: 20px;
+}
+
+#submit_settings {
+    display: block;
+    margin-top: 30px;
 }

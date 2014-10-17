@@ -17,12 +17,13 @@ app = flask.Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py")
 
 from soundcloudr.models import db
+db.create_all()
 from soundcloudr.models import PlayPosition
 
 
 @app.route("/")
 def home():
-    if 'access_token' in flask.session:
+    if logged_in():
         return flask.render_template('home_loggedin.html')
     else:
         return flask.render_template('home.html')
@@ -47,7 +48,7 @@ def authorize():
 
 @app.route('/tracks')
 def tracks():
-    if 'access_token' not in flask.session:
+    if not logged_in():
         return flask.abort(401)
     else:
         user = PlayPosition.query.filter_by(
@@ -71,7 +72,7 @@ def tracks():
 
 @app.route('/likes')
 def likes():
-    if 'access_token' not in flask.session:
+    if not logged_in():
         return flask.abort(401)
     else:
         number_of_likes = flask.g.client.get('/me').public_favorites_count
@@ -96,6 +97,21 @@ def playposition():
     db.session.commit()
     return 'OK'
 
+@app.route('/settings', methods=['POST', 'GET'])
+def settings():
+    if not logged_in():
+        return flask.redirect(flask.url_for('home'))
+    else:
+        user = PlayPosition.query.filter_by(
+            user=flask.session['username']
+        ).first()
+
+        if flask.request.method == 'POST':
+            user.max_track_length = flask.request.form['max_track_length']
+            db.session.commit()
+
+        return flask.render_template('settings.html', user=user)
+
 @app.before_request
 def generate_client():
     if 'access_token' in flask.session:
@@ -112,3 +128,9 @@ def generate_client():
                                redirect_uri = flask.url_for(
                                                 'authorize', _external=True))
         flask.g.client = client
+
+def logged_in():
+    if 'access_token' in flask.session:
+        return True
+    else:
+        return False

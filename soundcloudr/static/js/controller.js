@@ -1,3 +1,12 @@
+$('#settings-cog').mouseover(function() {
+    $(this).addClass('fa-spin');
+});
+
+$('#settings-cog').mouseout(function() {
+    $(this).removeClass('fa-spin');
+});
+
+
 $.getJSON('/tracks', function(tracks){
     $(function() {
 
@@ -30,16 +39,6 @@ $.getJSON('/tracks', function(tracks){
 
         $('#last1').click(function() {
             last();
-        });
-
-        $('#logout').click(function() {
-            $.get('/logout', function(data) {
-                location.href="/";
-            });
-        });
-
-        $('#logo').click(function() {
-            location.href="/";
         });
 
         function skip() {

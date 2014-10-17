@@ -14,9 +14,11 @@ db = flask.ext.sqlalchemy.SQLAlchemy(app)
 class PlayPosition(db.Model):
     user = db.Column(db.String(255) , primary_key=True)
     track_id = db.Column(db.Integer)
+    max_track_length = db.Column(db.Integer)
 
-    def __init__(self, user, track_id=0):
+    def __init__(self, user, track_id=0, max_track_length=15):
         self.user = user
         self.track = track_id
+        self.max_track_length = max_track_length
 
 

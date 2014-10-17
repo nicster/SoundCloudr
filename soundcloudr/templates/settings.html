@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<div id="settings">
+    <h1>Settings</h1>
+
+    <form method="post" action="">
+        <label for="tracklength">Track length (minutes):</label><input type="text" id="tracklength" placeholder="{{user.max_track_length}}" name="max_track_length">
+        <a class="button" id="submit_settings" role="submit">Submit</a>
+    </form>
+</div>
+
+{% endblock %}
