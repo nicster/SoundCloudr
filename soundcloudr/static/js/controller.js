@@ -6,6 +6,9 @@ $('#settings-cog').mouseout(function() {
     $(this).removeClass('fa-spin');
 });
 
+$('a[role=submit]').click(function() {
+    $(this).parents('form').submit();
+});
 
 $.getJSON('/tracks', function(tracks){
     $(function() {
