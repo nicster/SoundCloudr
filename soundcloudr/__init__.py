@@ -28,9 +28,11 @@ def home():
     else:
         return flask.render_template('home.html')
 
+
 @app.route("/login")
 def login():
     return flask.redirect(flask.g.client.authorize_url())
+
 
 @app.route("/logout")
 def logout():
@@ -45,6 +47,7 @@ def authorize():
     generate_client()
     flask.session['username'] = flask.g.client.get('/me').username
     return flask.redirect(flask.url_for('home'))
+
 
 @app.route('/tracks')
 def tracks():
@@ -65,10 +68,11 @@ def tracks():
         tracks = soundcloudr.playlist.Playlist(flask.g.client, l_track).tracks
         rv = flask.make_response(
             json.dumps([track['id'] for track in tracks
-            if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
+                        if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
         )
         rv.headers['content-type'] = 'application/json'
         return rv
+
 
 @app.route('/likes')
 def likes():
@@ -81,10 +85,11 @@ def likes():
         ).likes
         rv = flask.make_response(
             json.dumps([track['id'] for track in likes
-            if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
+                        if track['duration'] <= app.config['MAX_DURATION'] * 60 * 1000])
         )
         rv.headers['content-type'] = 'application/json'
         return rv
+
 
 @app.route('/playposition', methods=['POST'])
 def playposition():
@@ -96,6 +101,7 @@ def playposition():
     user.track_id = play_position
     db.session.commit()
     return 'OK'
+
 
 @app.route('/settings', methods=['POST', 'GET'])
 def settings():
@@ -112,22 +118,24 @@ def settings():
 
         return flask.render_template('settings.html', user=user)
 
+
 @app.before_request
 def generate_client():
     if 'access_token' in flask.session:
         token = flask.session['access_token']
-        client = soundcloud.Client(client_id = app.config['CLIENT_ID'],
-                               client_secret = app.config['CLIENT_SECRET'],
-                               access_token = token,
-                               redirect_uri = flask.url_for(
-                                                'authorize', _external=True))
+        client = soundcloud.Client(client_id=app.config['CLIENT_ID'],
+                                   client_secret=app.config['CLIENT_SECRET'],
+                                   access_token=token,
+                                   redirect_uri=flask.url_for(
+                                       'authorize', _external=True))
         flask.g.client = client
     else:
-        client = soundcloud.Client(client_id = app.config['CLIENT_ID'],
-                               client_secret = app.config['CLIENT_SECRET'],
-                               redirect_uri = flask.url_for(
-                                                'authorize', _external=True))
+        client = soundcloud.Client(client_id=app.config['CLIENT_ID'],
+                                   client_secret=app.config['CLIENT_SECRET'],
+                                   redirect_uri=flask.url_for(
+                                       'authorize', _external=True))
         flask.g.client = client
+
 
 def logged_in():
     if 'access_token' in flask.session:

@@ -11,6 +11,7 @@ import urlparse
 import gevent
 import gevent.pool
 
+
 class Playlist(object):
     def __init__(self, client, last_track=None, number_of_likes=None):
         self.client = client
@@ -67,4 +68,3 @@ class Playlist(object):
         params = urlparse.parse_qs(query)
         cursor = params['cursor'][0]
         return cursor
-
