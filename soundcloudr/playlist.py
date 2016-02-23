@@ -28,8 +28,7 @@ class Playlist(object):
         )
 
         for track in data.collection:
-            print track.keys()
-            if getattr(getattr(track, 'origin'), 'id') == self.last_track:
+            if getattr(getattr(track, 'origin'), 'id') == self.last_track or len(tracks) >= 60:
                 break
             tracks.append({
                 'id': getattr(getattr(track, 'origin'), 'id'),
