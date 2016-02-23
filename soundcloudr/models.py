@@ -11,8 +11,9 @@ from soundcloudr import app
 
 db = flask.ext.sqlalchemy.SQLAlchemy(app)
 
+
 class PlayPosition(db.Model):
-    user = db.Column(db.String(255) , primary_key=True)
+    user = db.Column(db.String(255), primary_key=True)
     track_id = db.Column(db.Integer)
     max_track_length = db.Column(db.Integer)
 
@@ -21,4 +22,4 @@ class PlayPosition(db.Model):
         self.track = track_id
         self.max_track_length = max_track_length
 
-
+db.create_all()

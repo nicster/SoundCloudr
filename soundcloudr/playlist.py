@@ -28,16 +28,17 @@ class Playlist(object):
         )
 
         for track in data.collection:
-            if track['origin']['id'] == self.last_track or len(tracks) >= 100:
+            print track.keys()
+            if getattr(getattr(track, 'origin'), 'id') == self.last_track:
                 break
             tracks.append({
-                'id': track['origin']['id'],
-                'title': track['origin']['title'],
-                'duration': track['origin']['duration'],
-                'genre': track['origin']['genre'],
-                'description': track['origin']['description'],
-                'downloadable': track['origin']['downloadable'],
-                'permalink_url': track['origin']['permalink_url']
+                'id': getattr(getattr(track, 'origin'), 'id'),
+                'title': getattr(getattr(track, 'origin'), 'title'),
+                'duration': getattr(getattr(track, 'origin'), 'duration'),
+                'genre': getattr(getattr(track, 'origin'), 'genre'),
+                'description': getattr(getattr(track, 'origin'), 'description'),
+                'downloadable': getattr(getattr(track, 'origin'), 'downloadable'),
+                'permalink_url': getattr(getattr(track, 'origin'), 'permalink_url')
             })
         else:
             self.fetch_tracks(tracks, self.extract_cursor(data.next_href))

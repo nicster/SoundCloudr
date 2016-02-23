@@ -25,6 +25,7 @@ from soundcloudr.models import PlayPosition
 def home():
     if logged_in():
         return flask.render_template('home_loggedin.html')
+        print flask.g.client
     else:
         return flask.render_template('home.html')
 
